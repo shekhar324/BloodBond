@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activity History</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+    <style>
+        :root {
+            --primary: #e53935;
+            --secondary: #37474f;
+            --bg: #fafbfc;
+            --card-bg: #fff;
+            --text: #222;
+            --radius: 16px;
+            --shadow: 0 4px 24px rgba(0,0,0,0.07);
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 2rem;
+        }
+        .history-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        .history-header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        .filter-controls {
+            display: flex;
+            gap: 1rem;
+        }
+        .filter-controls select {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            background: var(--card-bg);
+            font-size: 1rem;
+        }
+        .timeline {
+            position: relative;
+            padding: 1rem 0;
+        }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 20px;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: #e0e0e0;
+        }
+        .timeline-item {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            animation: fadeInUp 0.5s ease-out forwards;
+            opacity: 0;
+        }
+        @keyframes fadeInUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .timeline-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--secondary);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            z-index: 1;
+            border: 3px solid var(--bg);
+        }
+        .timeline-content {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 1rem 1.5rem;
+            flex: 1;
+        }
+        .timeline-content p {
+            margin: 0;
+            font-size: 1.05rem;
+        }
+        .timeline-content .timestamp {
+            font-size: 0.9rem;
+            color: #888;
+            margin-top: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="history-container">
+        <div class="history-header">
+            <h1>Activity History</h1>
+            <div class="filter-controls">
+                <select id="filterAction">
+                    <option value="all">All Actions</option>
+                    <option value="login">Login</option>
+                    <option value="profile_update">Profile Update</option>
+                    <option value="inventory_add">Inventory Add</option>
+                    <option value="appointment_create">Appointment</option>
+                </select>
+                <select id="sortDate">
+                    <option value="newest">Newest First</option>
+                    <option value="oldest">Oldest First</option>
+                </select>
+            </div>
+        </div>
+        <div class="timeline" id="timeline">
+            <!-- JS will populate this -->
+        </div>
+        <div id="historyLoader" style="text-align:center;padding:2rem;">
+            <lottie-player src="https://lottie.host/d8f3a13a-211a-40b3-9610-6c92a2a2e8e9/P4TkeuODxG.json" background="transparent" speed="1" style="width: 150px; height: 150px;margin:auto;" loop autoplay></lottie-player>
+        </div>
+    </div>
+
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+        const supabaseUrl = 'https://hmdjuwnxnzmvmdfwmoao.supabase.co';
+        const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhtZGp1d254bnptdm1kZndtb2FvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAxNDQzNjQsImV4cCI6MjA2NTcyMDM2NH0.QrZI4Smf5pY1JNt6XWPWDArsBuM1n72gPnk-sAx2_f8';
+        const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+        const timeline = document.getElementById('timeline');
+        const historyLoader = document.getElementById('historyLoader');
+        const filterAction = document.getElementById('filterAction');
+        const sortDate = document.getElementById('sortDate');
+
+        const icons = {
+            login: 'fa-sign-in-alt',
+            profile_update: 'fa-user-edit',
+            inventory_add: 'fa-box',
+            appointment_create: 'fa-calendar-check',
+            default: 'fa-history'
+        };
+
+        let allHistoryData = [];
+
+        function renderHistory(data) {
+            timeline.innerHTML = '';
+            if (data.length === 0) {
+                timeline.innerHTML = '<p style="text-align:center;color:#888;">No history found.</p>';
+                return;
+            }
+            data.forEach((item, i) => {
+                const iconClass = icons[item.action] || icons.default;
+                const timelineItem = `
+                    <div class="timeline-item" style="animation-delay: ${i * 70}ms">
+                        <div class="timeline-icon">
+                            <i class="fas ${iconClass}"></i>
+                        </div>
+                        <div class="timeline-content">
+                            <p>${item.description}</p>
+                            <div class="timestamp">${new Date(item.timestamp).toLocaleString()}</div>
+                        </div>
+                    </div>
+                `;
+                timeline.insertAdjacentHTML('beforeend', timelineItem);
+            });
+        }
+
+        async function fetchHistory() {
+            historyLoader.style.display = 'block';
+            timeline.innerHTML = '';
+
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) {
+                historyLoader.innerHTML = '<p style="color:red;">You must be logged in to view history.</p>';
+                return;
+            }
+
+            const { data, error } = await supabase.from('user_history')
+                .select('*')
+                .eq('user_id', user.id)
+                .order('timestamp', { ascending: false });
+
+            if (error) {
+                console.error('Error fetching history:', error);
+                historyLoader.innerHTML = '<p style="color:red;">Error loading data.</p>';
+                return;
+            }
+
+            allHistoryData = data;
+            applyFilters();
+            historyLoader.style.display = 'none';
+        }
+
+        function applyFilters() {
+            let filteredData = [...allHistoryData];
+
+            // Filter by action
+            const action = filterAction.value;
+            if (action !== 'all') {
+                filteredData = filteredData.filter(item => item.action === action);
+            }
+
+            // Sort by date
+            const sort = sortDate.value;
+            if (sort === 'oldest') {
+                filteredData.reverse(); // Since default is newest first
+            }
+
+            renderHistory(filteredData);
+        }
+
+        filterAction.addEventListener('change', applyFilters);
+        sortDate.addEventListener('change', applyFilters);
+
+        // Initial fetch
+        fetchHistory();
+    </script>
+</body>
+</html> 

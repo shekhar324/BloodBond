@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #e53935;
+            --secondary: #37474f;
+            --bg: #fafbfc;
+            --card-bg: #fff;
+            --text: #222;
+            --radius: 16px;
+            --shadow: 0 4px 24px rgba(0,0,0,0.07);
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 2rem;
+        }
+        /* DARK MODE STYLES */
+        body.dark-mode {
+            background: #181a1b;
+            color: #f5f5f5;
+        }
+        body.dark-mode .settings-header h1,
+        body.dark-mode .settings-card,
+        body.dark-mode .settings-title,
+        body.dark-mode .form-control,
+        body.dark-mode .reg-float,
+        body.dark-mode .reg-float-group label,
+        body.dark-mode .btn,
+        body.dark-mode .btn-outline-secondary,
+        body.dark-mode .btn-outline-danger {
+            background: #23272a !important;
+            color: #f5f5f5 !important;
+            box-shadow: none;
+            border-color: #444 !important;
+        }
+        body.dark-mode .settings-card {
+            border: 1px solid #444;
+        }
+        body.dark-mode .btn {
+            background: #444 !important;
+            color: #fff !important;
+        }
+        body.dark-mode .btn-outline-secondary {
+            background: transparent !important;
+            color: #bbb !important;
+            border: 1px solid #888 !important;
+        }
+        body.dark-mode .btn-outline-danger {
+            background: transparent !important;
+            color: #ffb3b3 !important;
+            border: 1px solid #ffb3b3 !important;
+        }
+        body.dark-mode .switch .slider {
+            background: #444;
+        }
+        body.dark-mode .switch input:checked + .slider {
+            background: var(--primary);
+        }
+        body.dark-mode .slider:before {
+            background: #23272a;
+        }
+        body.dark-mode .form-control,
+        body.dark-mode .reg-float {
+            background: #23272a !important;
+            color: #f5f5f5 !important;
+            border-color: #444 !important;
+        }
+        body.dark-mode .reg-float-group label {
+            background: #23272a !important;
+            color: #bbb !important;
+        }
+        body.dark-mode select,
+        body.dark-mode input[type="color"] {
+            background: #23272a !important;
+            color: #f5f5f5 !important;
+            border-color: #444 !important;
+        }
+        .settings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            max-width: 1200px;
+            margin: 0 auto 2rem auto;
+        }
+        .settings-header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        .settings-grid { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 2rem; 
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .settings-card { 
+            background: var(--card-bg); 
+            border-radius: var(--radius); 
+            box-shadow: var(--shadow); 
+            padding: 2rem 1.5rem; 
+            animation: fadeInUp 0.5s ease-out forwards;
+            opacity: 0;
+        }
+        .settings-title { 
+            font-size: 1.13rem; 
+            color: var(--primary); 
+            margin-bottom: 1.5rem; 
+            font-weight: 700; 
+            display: flex;
+            align-items: center;
+            gap: 0.7rem; 
+        }
+        @keyframes fadeInUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        @media (max-width: 1100px) { .settings-grid { grid-template-columns:1fr; } }
+        /* Form styles from dashboard */
+        .reg-row { display:flex; gap:1.1rem; margin-bottom: 1rem; }
+        .reg-row > * { flex:1; }
+        .reg-float-group { position:relative; }
+        .form-control, .reg-float { 
+            width:100%; 
+            padding:1.1rem 1rem 0.6rem 1rem; 
+            font-size:1.08rem; 
+            border:1.5px solid #eee; 
+            border-radius:8px; 
+            background:#fafafa;
+        }
+        .reg-float-group label { 
+            position:absolute; left:1.1rem; top:1.1rem; color:#888; 
+            pointer-events:none; background:var(--card-bg); padding:0 0.2rem; 
+            transition:all 0.2s; 
+        }
+        .reg-float:focus + label, .reg-float:valid + label { 
+            top:-0.7rem; left:0.8rem; font-size:0.89rem; color:var(--primary);
+        }
+        .btn {
+            background: var(--primary);
+            color: #fff;
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .btn-outline-secondary {
+            background: transparent;
+            color: var(--secondary);
+            border: 1px solid #ccc;
+        }
+        .btn-outline-danger {
+            background: transparent;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+        }
+        /* Switch toggle */
+        .switch { position:relative; display:inline-block; width:44px; height:24px; }
+        .switch input { opacity:0; width:0; height:0; }
+        .slider { position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0; background:#ccc; transition:.4s; border-radius:24px; }
+        .slider:before { position:absolute; content:""; height:18px; width:18px; left:3px; bottom:3px; background:white; transition:.4s; border-radius:50%; }
+        input:checked + .slider { background:var(--primary); }
+        input:checked + .slider:before { transform:translateX(20px); }
+    </style>
+</head>
+<body>
+    <div class="settings-header">
+        <h1><i class="fas fa-cog"></i> Settings</h1>
+    </div>
+
+    <div class="settings-grid">
+        <div class="settings-card" style="grid-column: 1 / -1;">
+          <h4 class="settings-title"><i class="fas fa-user-edit"></i> Profile</h4>
+          <form id="settingsForm" autocomplete="off" style="display:flex;flex-direction:column;gap:1.1rem;">
+            <div class="reg-row">
+              <div class="reg-float-group">
+                <input type="text" id="setName" class="form-control reg-float" placeholder=" " required>
+                <label for="setName">Full Name</label>
+              </div>
+              <div class="reg-float-group">
+                <input type="email" id="setEmail" class="form-control reg-float" placeholder=" " required>
+                <label for="setEmail">Email</label>
+              </div>
+            </div>
+            <div class="reg-row">
+              <div class="reg-float-group">
+                <input type="tel" id="setMobile" class="form-control reg-float" placeholder=" " required pattern="[0-9]{10,15}">
+                <label for="setMobile">Mobile Number</label>
+              </div>
+              <div class="reg-float-group">
+                <input type="password" id="setPassword" class="form-control reg-float" placeholder=" " minlength="6">
+                <label for="setPassword">New Password</label>
+              </div>
+            </div>
+            <button type="submit" class="btn" style="align-self: flex-start;">Save Profile</button>
+            <div id="settingsMsg" style="min-height:32px;text-align:center;"></div>
+          </form>
+        </div>
+        <div class="settings-card">
+            <h4 class="settings-title"><i class="fas fa-shield-alt"></i> Account & Security</h4>
+            <div style="display:flex;flex-direction:column;gap:1.2rem;">
+              <div style="display:flex;align-items:center;gap:1rem;">
+                <label class="switch" for="set2FA" title="Enable Two-Factor Authentication (2FA)">
+                  <input type="checkbox" id="set2FA" aria-label="Enable Two-Factor Authentication (2FA)">
+                  <span class="slider"></span>
+                </label>
+                <span>Enable Two-Factor Authentication (2FA)</span>
+              </div>
+              <button type="button" class="btn btn-outline-secondary" id="setSessionsBtn">Manage Sessions</button>
+              <button type="button" class="btn btn-outline-secondary" id="setDownloadDataBtn">Download My Data</button>
+              <button type="button" class="btn btn-outline-danger" id="setDeleteAccountBtn">Delete Account</button>
+            </div>
+          </div>
+        <div class="settings-card">
+            <h4 class="settings-title"><i class="fas fa-paint-brush"></i> Personalization</h4>
+            <div style="display:flex;flex-direction:column;gap:1.2rem;">
+              <div style="display:flex;align-items:center;gap:1rem;">
+                <label class="switch">
+                  <input type="checkbox" id="setDarkMode">
+                  <span class="slider"></span>
+                </label>
+                <span>Dark Mode</span>
+              </div>
+               <div style="display:flex;align-items:center;gap:1rem;">
+                <label for="setThemeColor">Accent Color</label>
+                <input type="color" id="setThemeColor" value="#e53935">
+              </div>
+              <div style="display:flex;align-items:center;gap:1rem;">
+                <label for="setFontSize">Font Size</label>
+                <select id="setFontSize" class="form-control reg-float" style="max-width:120px;">
+                  <option value="normal">Normal</option>
+                  <option value="large">Large</option>
+                  <option value="xlarge">Extra Large</option>
+                </select>
+              </div>
+            </div>
+        </div>
+        <div class="settings-card">
+            <h4 class="settings-title"><i class="fas fa-bell"></i> Notifications</h4>
+            <div style="display:flex;flex-direction:column;gap:1.2rem;">
+              <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+                <label class="switch"><input type="checkbox" id="setNotifEmail" checked><span class="slider"></span></label>
+                <span>Email</span>
+                <label class="switch"><input type="checkbox" id="setNotifSMS"><span class="slider"></span></label>
+                <span>SMS</span>
+              </div>
+            </div>
+        </div>
+        <div class="settings-card">
+            <h4 class="settings-title"><i class="fas fa-user-secret"></i> Privacy & Data</h4>
+            <div style="display:flex;flex-direction:column;gap:1.2rem;">
+              <div style="display:flex;align-items:center;gap:1rem;">
+                <label class="switch"><input type="checkbox" id="setShowProfile" checked><span class="slider"></span></label>
+                <span>Show my profile to others</span>
+              </div>
+            </div>
+        </div>
+        <div class="settings-card">
+            <h4 class="settings-title"><i class="fas fa-language"></i> Language & Region</h4>
+            <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+                <label for="setLanguage">Language</label>
+                <select id="setLanguage" class="form-control reg-float" style="max-width:140px;">
+                  <option value="en">English</option>
+                  <option value="hi">Hindi</option>
+                  <option value="es">Spanish</option>
+                  <option value="fr">French</option>
+                  <option value="zh">Chinese</option>
+                </select>
+            </div>
+        </div>
+        <div class="settings-card">
+            <h4 class="settings-title"><i class="fas fa-question-circle"></i> Support & Help</h4>
+            <div style="display:flex;flex-direction:column;gap:1.2rem;">
+              <a href="#" class="btn btn-outline-secondary">Contact Support</a>
+              <a href="#" class="btn btn-outline-secondary">FAQ / Help Center</a>
+            </div>
+        </div>
+        <div class="settings-card">
+            <h4 class="settings-title"><i class="fas fa-info-circle"></i> App Info</h4>
+            <span>Version: 1.0.0</span>
+        </div>
+    </div>
+    
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+        const supabaseUrl = 'https://hmdjuwnxnzmvmdfwmoao.supabase.co';
+        const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhtZGp1d254bnptdm1kZndtb2FvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAxNDQzNjQsImV4cCI6MjA2NTcyMDM2NH0.QrZI4Smf5pY1JNt6XWPWDArsBuM1n72gPnk-sAx2_f8';
+        const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+        const settingsForm = document.getElementById('settingsForm');
+        const settingsMsg = document.getElementById('settingsMsg');
+        const setDarkMode = document.getElementById('setDarkMode');
+        const setLanguage = document.getElementById('setLanguage');
+        const setThemeColor = document.getElementById('setThemeColor');
+        const setFontSize = document.getElementById('setFontSize');
+
+        // Dark Mode Logic
+        function updateDarkMode() {
+            const isDark = setDarkMode.checked;
+            document.body.classList.toggle('dark-mode', isDark);
+            localStorage.setItem('darkMode', isDark ? '1' : '0');
+        }
+        setDarkMode.addEventListener('change', updateDarkMode);
+
+        // On page load, sync checkbox and theme with localStorage
+        function syncDarkModeFromStorage() {
+            const isDark = localStorage.getItem('darkMode') === '1';
+            setDarkMode.checked = isDark;
+            document.body.classList.toggle('dark-mode', isDark);
+        }
+        syncDarkModeFromStorage();
+        window.addEventListener('storage', syncDarkModeFromStorage);
+
+        // Accent Color Logic
+        setThemeColor.addEventListener('input', (e) => {
+            document.documentElement.style.setProperty('--primary', e.target.value);
+            localStorage.setItem('bloodlink_theme_color', e.target.value);
+        });
+
+        // Font Size Logic
+        setFontSize.addEventListener('change', (e) => {
+            let fontSize = '16px';
+            if (e.target.value === 'large') fontSize = '18px';
+            if (e.target.value === 'xlarge') fontSize = '20px';
+            document.documentElement.style.fontSize = fontSize;
+            localStorage.setItem('bloodlink_font_size', e.target.value);
+        });
+
+        // Language Logic
+        function updateLanguage(lang) {
+            // In a real app, you'd have a full translation system here.
+            // For now, it just saves the preference.
+            console.log("Language changed to:", lang);
+        }
+        setLanguage.addEventListener('change', () => {
+            const lang = setLanguage.value;
+            updateLanguage(lang);
+            // Save language to localStorage
+            const user = JSON.parse(localStorage.getItem('bloodlink_user')) || {};
+            user.language = lang;
+            localStorage.setItem('bloodlink_user', JSON.stringify(user));
+        });
+
+        // Load settings from localStorage or defaults
+        function loadSettings() {
+            const user = JSON.parse(localStorage.getItem('bloodlink_user')) || {};
+            document.getElementById('setName').value = user.name || '';
+            document.getElementById('setEmail').value = user.email || '';
+            document.getElementById('setMobile').value = user.mobile || '';
+            setLanguage.value = user.language || 'en';
+            
+            // Load personalization
+            const themeColor = localStorage.getItem('bloodlink_theme_color') || '#e53935';
+            setThemeColor.value = themeColor;
+            document.documentElement.style.setProperty('--primary', themeColor);
+            
+            const fontSize = localStorage.getItem('bloodlink_font_size') || 'normal';
+            setFontSize.value = fontSize;
+            setFontSize.dispatchEvent(new Event('change'));
+
+            updateLanguage(setLanguage.value);
+        }
+
+        // Form submission
+        settingsForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            settingsMsg.textContent = 'Saving...';
+            settingsMsg.style.color = 'var(--secondary)';
+            const name = document.getElementById('setName').value.trim();
+            const email = document.getElementById('setEmail').value.trim();
+            const mobile = document.getElementById('setMobile').value.trim();
+            const password = document.getElementById('setPassword').value;
+            
+            const user = { 
+                name, 
+                email, 
+                mobile, 
+                language: setLanguage.value,
+                // Add other settings to save
+                notifEmail: document.getElementById('setNotifEmail').checked,
+                notifSMS: document.getElementById('setNotifSMS').checked,
+                showProfile: document.getElementById('setShowProfile').checked,
+                use2FA: document.getElementById('set2FA').checked,
+            };
+            localStorage.setItem('bloodlink_user', JSON.stringify(user));
+            
+            if (password) {
+                const { error } = await supabase.auth.updateUser({ password });
+                if (error) {
+                    settingsMsg.textContent = 'Error updating password: ' + error.message;
+                    settingsMsg.style.color = 'var(--primary)';
+                    return;
+                }
+            }
+            
+            settingsMsg.textContent = 'Settings saved!';
+            settingsMsg.style.color = '#388e3c';
+        });
+
+        // Initial Load
+        loadSettings();
+    </script>
+</body>
+</html> 

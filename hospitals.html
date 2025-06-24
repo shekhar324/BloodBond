@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospitals</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <style>
+        :root { --primary: #1976d2; --bg: #f4f6f8; --card-bg: #fff; }
+        body { font-family: 'Roboto', sans-serif; background: var(--bg); margin: 0; padding: 2rem; }
+        .hospitals-container { max-width: 1400px; margin: 0 auto; }
+        .hospitals-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+        .hospitals-header h1 { font-size: 2.5rem; color: var(--primary); }
+        .view-toggle { display: flex; background: #e0e0e0; border-radius: 8px; }
+        .view-toggle button { background: transparent; border: none; padding: 0.8rem 1.2rem; cursor: pointer; font-size: 1rem; color: #666; }
+        .view-toggle button.active { background: var(--primary); color: #fff; border-radius: 8px; }
+        #hospitalsMap { height: 500px; border-radius: 16px; margin-bottom: 2rem; }
+        #hospitalsList { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 1.5rem; }
+        .hospital-card { background: var(--card-bg); border-radius: 16px; padding: 1.5rem; box-shadow: 0 4px 24px rgba(0,0,0,0.08); display: flex; flex-direction: column; }
+        .hospital-card h3 { margin: 0 0 1rem; color: var(--primary); }
+        .hospital-card p { margin: 0.2rem 0; color: #555; }
+        .hospital-card .contact-info { margin-top: auto; padding-top: 1rem; border-top: 1px solid #eee; }
+        body.dark-mode {
+            background: #181a1b;
+            color: #f5f5f5;
+        }
+        body.dark-mode .hospitals-header h1,
+        body.dark-mode .hospital-card,
+        body.dark-mode .view-toggle,
+        body.dark-mode .leaflet-control,
+        body.dark-mode .leaflet-popup-content-wrapper {
+            background: #23272a !important;
+            color: #f5f5f5 !important;
+            box-shadow: none;
+        }
+        body.dark-mode .hospital-card {
+            border: 1px solid #444;
+        }
+        body.dark-mode .view-toggle button.active {
+            background: #444 !important;
+            color: #fff !important;
+        }
+        body.dark-mode .leaflet-container {
+            background: #23272a !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="hospitals-container">
+        <div style="display:flex;justify-content:flex-end;align-items:center;margin-bottom:1rem;">
+            <button id="darkModeBtn" aria-label="Toggle dark mode" style="background:none;border:none;cursor:pointer;font-size:1.5rem;">
+                <span id="darkModeIcon">🌙</span>
+            </button>
+        </div>
+        <div class="hospitals-header">
+            <h1><i class="fas fa-hospital"></i> Hospitals</h1>
+            <div class="view-toggle">
+                <button id="mapViewBtn" class="active"><i class="fas fa-map-marked-alt"></i> Map</button>
+                <button id="listViewBtn"><i class="fas fa-list"></i> List</button>
+            </div>
+        </div>
+        <div id="hospitalsMapContainer">
+            <div id="hospitalsMap"></div>
+        </div>
+        <div id="hospitalsListContainer" style="display: none;">
+            <div id="hospitalsList"></div>
+        </div>
+        <div id="hospitalsLoader" style="text-align:center; padding: 2rem; font-size: 1.2rem;">Loading hospital data...</div>
+    </div>
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+        const supabaseUrl = 'https://hmdjuwnxnzmvmdfwmoao.supabase.co';
+        const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhtZGp1d254bnptdm1kZndtb2FvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAxNDQzNjQsImV4cCI6MjA2NTcyMDM2NH0.QrZI4Smf5pY1JNt6XWPWDArsBuM1n72gPnk-sAx2_f8';
+        const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+        const hospitalsLoader = document.getElementById('hospitalsLoader');
+        const hospitalsMapContainer = document.getElementById('hospitalsMapContainer');
+        const hospitalsListContainer = document.getElementById('hospitalsListContainer');
+        const hospitalsList = document.getElementById('hospitalsList');
+        const mapViewBtn = document.getElementById('mapViewBtn');
+        const listViewBtn = document.getElementById('listViewBtn');
+        let map;
+
+        async function renderHospitals() {
+            hospitalsLoader.style.display = 'block';
+            if (map) map.remove();
+            map = L.map('hospitalsMap').setView([20.5937, 78.9629], 5);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+            const { data, error } = await supabase.from('hospitals').select('*');
+            if (error || !data) {
+                hospitalsLoader.textContent = 'Could not fetch hospital data.';
+                return;
+            }
+
+            hospitalsList.innerHTML = '';
+            data.forEach(hospital => {
+                // Map marker
+                if (hospital.latitude && hospital.longitude) {
+                    L.marker([hospital.latitude, hospital.longitude]).addTo(map)
+                        .bindPopup(`<b>${hospital.name}</b><br>${hospital.address}`);
+                }
+                // List card
+                const card = `
+                    <div class="hospital-card">
+                        <h3>${hospital.name}</h3>
+                        <p><i class="fas fa-map-marker-alt"></i> ${hospital.address}, ${hospital.city}</p>
+                        <div class="contact-info">
+                            <p><i class="fas fa-phone"></i> ${hospital.phone || 'N/A'}</p>
+                            <p><i class="fas fa-globe"></i> <a href="${hospital.website || '#'}" target="_blank">${hospital.website || 'No website'}</a></p>
+                        </div>
+                    </div>
+                `;
+                hospitalsList.insertAdjacentHTML('beforeend', card);
+            });
+            hospitalsLoader.style.display = 'none';
+        }
+
+        mapViewBtn.addEventListener('click', () => {
+            hospitalsMapContainer.style.display = 'block';
+            hospitalsListContainer.style.display = 'none';
+            mapViewBtn.classList.add('active');
+            listViewBtn.classList.remove('active');
+            map.invalidateSize();
+        });
+
+        listViewBtn.addEventListener('click', () => {
+            hospitalsMapContainer.style.display = 'none';
+            hospitalsListContainer.style.display = 'block';
+            mapViewBtn.classList.remove('active');
+            listViewBtn.classList.add('active');
+        });
+
+        renderHospitals();
+    </script>
+    <script>
+        // Dark mode toggle logic
+        const darkModeBtn = document.getElementById('darkModeBtn');
+        const darkModeIcon = document.getElementById('darkModeIcon');
+        function setDarkMode(enabled) {
+            if (enabled) {
+                document.body.classList.add('dark-mode');
+                darkModeIcon.textContent = '☀️';
+            } else {
+                document.body.classList.remove('dark-mode');
+                darkModeIcon.textContent = '🌙';
+            }
+            localStorage.setItem('darkMode', enabled ? '1' : '0');
+        }
+        setDarkMode(localStorage.getItem('darkMode') === '1');
+        darkModeBtn.addEventListener('click', () => {
+            setDarkMode(!document.body.classList.contains('dark-mode'));
+        });
+    </script>
+</body>
+</html> 
