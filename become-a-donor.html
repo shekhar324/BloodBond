@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Become a Donor</title>
+  <!-- Google Fonts for modern look -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <!-- LottieFiles for animation -->
+  <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: linear-gradient(135deg, #fff 60%, #ffe5e5 100%);
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+    .container {
+      background: #fff;
+      max-width: 420px;
+      width: 100%;
+      margin: 32px 0;
+      border-radius: 18px;
+      box-shadow: 0 4px 24px rgba(229,57,53,0.09);
+      padding: 28px 18px 22px 18px;
+      animation: fadeIn 1s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(24px);}
+      to { opacity: 1; transform: translateY(0);}
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    .header h2 {
+      color: #e53935;
+      margin: 0;
+      font-size: 2rem;
+      font-weight: 700;
+    }
+    .header p {
+      color: #444;
+      margin: 8px 0 0 0;
+      font-size: 1rem;
+      font-weight: 400;
+    }
+    form {
+      margin-top: 18px;
+    }
+    .form-group {
+      margin-bottom: 16px;
+      display: flex;
+      flex-direction: column;
+    }
+    label {
+      font-size: 1rem;
+      margin-bottom: 5px;
+      color: #222;
+      font-weight: 500;
+    }
+    input, select, textarea {
+      padding: 11px 12px;
+      font-size: 1rem;
+      border: 1px solid #eee;
+      border-radius: 7px;
+      background: #fafafa;
+      transition: border 0.2s;
+      outline: none;
+      font-family: inherit;
+    }
+    input:focus, select:focus, textarea:focus {
+      border: 1.5px solid #e53935;
+      background: #fff;
+    }
+    .row {
+      display: flex;
+      gap: 10px;
+    }
+    .row .form-group {
+      flex: 1;
+    }
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .checkbox-group label {
+      margin-bottom: 0;
+      font-size: 0.97rem;
+      font-weight: 400;
+      color: #555;
+      cursor: pointer;
+    }
+    .btn {
+      width: 100%;
+      padding: 13px 0;
+      background: linear-gradient(90deg, #e53935 60%, #ff7961 100%);
+      color: #fff;
+      border: none;
+      border-radius: 7px;
+      font-size: 1.15rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(229,57,53,0.13);
+      margin-top: 8px;
+      transition: background 0.2s;
+    }
+    .btn:active {
+      background: #d32f2f;
+    }
+    .success-message {
+      color: #388e3c;
+      font-weight: 500;
+      text-align: center;
+      margin-top: 14px;
+      font-size: 1.1rem;
+      animation: fadeIn 0.6s;
+    }
+    .error-message {
+      color: #e53935;
+      font-weight: 500;
+      text-align: center;
+      margin-top: 14px;
+      font-size: 1.1rem;
+      animation: fadeIn 0.6s;
+    }
+    @media (max-width: 600px) {
+      .container {
+        border-radius: 0;
+        margin: 0;
+        min-height: 100vh;
+        box-shadow: none;
+        padding: 18px 5vw 18px 5vw;
+      }
+      .header h2 { font-size: 1.4rem; }
+      .row {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      .form-group label {
+        font-size: 1rem;
+      }
+      input, select, textarea {
+        font-size: 1rem;
+        padding: 12px 10px;
+      }
+      .checkbox-group {
+        gap: 12px;
+        margin-bottom: 16px;
+        font-size: 1rem;
+      }
+      .btn {
+        font-size: 1.1rem;
+        padding: 15px 0;
+        border-radius: 10px;
+        margin-top: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <lottie-player src="https://lottie.host/7c8e2b5e-3e2c-4e0a-bb8a-8b3b2a7c8e7d/3h0QK9zHq6.json"
+        background="transparent" speed="1" style="width: 70px; height: 70px; margin-bottom: 6px;" loop autoplay></lottie-player>
+      <h2>Become a Donor</h2>
+      <p>Register to save lives. Your donation matters!</p>
+    </div>
+    <form id="donorForm" autocomplete="off">
+      <div class="form-group">
+        <label for="fullName">Full Name *</label>
+        <input type="text" id="fullName" name="fullName" required autocomplete="off">
+      </div>
+      <div class="row">
+        <div class="form-group">
+          <label for="dob">Date of Birth *</label>
+          <input type="date" id="dob" name="dob" required>
+        </div>
+        <div class="form-group">
+          <label for="gender">Gender *</label>
+          <select id="gender" name="gender" required>
+            <option value="">Select</option>
+            <option>Male</option>
+            <option>Female</option>
+            <option>Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="mobile">Mobile Number *</label>
+        <input type="tel" id="mobile" name="mobile" pattern="[0-9]{10,15}" required>
+      </div>
+      <div class="form-group">
+        <label for="email">Email Address *</label>
+        <input type="email" id="email" name="email" required autocomplete="off">
+      </div>
+      <div class="form-group">
+        <label for="address">Address *</label>
+        <textarea id="address" name="address" rows="2" required></textarea>
+      </div>
+      <div class="row">
+        <div class="form-group">
+          <label for="city">City *</label>
+          <input type="text" id="city" name="city" required>
+        </div>
+        <div class="form-group">
+          <label for="state">State *</label>
+          <input type="text" id="state" name="state" required>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="pin">Pin Code *</label>
+        <input type="number" id="pin" name="pin" required>
+      </div>
+      <div class="form-group">
+        <label for="bloodGroup">Blood Group *</label>
+        <select id="bloodGroup" name="bloodGroup" required>
+          <option value="">Select</option>
+          <option>A+</option>
+          <option>A-</option>
+          <option>B+</option>
+          <option>B-</option>
+          <option>AB+</option>
+          <option>AB-</option>
+          <option>O+</option>
+          <option>O-</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="lastDonation">Last Donation Date</label>
+        <input type="date" id="lastDonation" name="lastDonation">
+      </div>
+      <div class="checkbox-group">
+        <input type="checkbox" id="platelets" name="platelets">
+        <label for="platelets">Willing to donate platelets?</label>
+      </div>
+      <div class="form-group">
+        <label for="donationCenter">Preferred Donation Center</label>
+        <input type="text" id="donationCenter" name="donationCenter">
+      </div>
+      <div class="form-group">
+        <label for="weight">Weight (kg) *</label>
+        <input type="number" id="weight" name="weight" required min="35" max="200">
+      </div>
+      <div class="checkbox-group">
+        <input type="checkbox" id="healthy" name="healthy" checked>
+        <label for="healthy">I am currently healthy</label>
+      </div>
+      <div class="form-group">
+        <label for="chronic">Any chronic diseases? (If yes, specify)</label>
+        <input type="text" id="chronic" name="chronic">
+      </div>
+      <div class="form-group">
+        <label for="medication">On medication? (If yes, specify)</label>
+        <input type="text" id="medication" name="medication">
+      </div>
+      <div class="form-group">
+        <label for="travel">Recent travel history? (If yes, specify)</label>
+        <input type="text" id="travel" name="travel">
+      </div>
+      <div class="checkbox-group">
+        <input type="checkbox" id="consent" name="consent" required>
+        <label for="consent">I confirm the above information is accurate.</label>
+      </div>
+      <div class="checkbox-group">
+        <input type="checkbox" id="contactConsent" name="contactConsent">
+        <label for="contactConsent">I agree to be contacted for donation opportunities.</label>
+      </div>
+      <button type="submit" class="btn" id="submitBtn">
+        Submit
+      </button>
+      <div id="formMessage"></div>
+    </form>
+  </div>
+
+  <!-- Supabase JS Client -->
+  <script type="module">
+    import { supabase } from './supabaseClient.js';
+    // --- Form Submission Handler ---
+    const donorForm = document.getElementById('donorForm');
+    const formMessage = document.getElementById('formMessage');
+    const submitBtn = document.getElementById('submitBtn');
+
+    donorForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      submitBtn.disabled = true;
+      formMessage.textContent = '';
+      // Collect form data
+      const data = {
+        full_name: donorForm.fullName.value,
+        dob: donorForm.dob.value,
+        gender: donorForm.gender.value,
+        mobile: donorForm.mobile.value,
+        email: donorForm.email.value,
+        address: donorForm.address.value,
+        city: donorForm.city.value,
+        state: donorForm.state.value,
+        pin: donorForm.pin.value,
+        blood_group: donorForm.bloodGroup.value,
+        chronic: donorForm.chronic.value,
+        medication: donorForm.medication.value,
+        travel: donorForm.travel.value,
+        consent: donorForm.consent.checked,
+        contact_consent: donorForm.contactConsent.checked
+      };
+      // Insert into Supabase
+      const { error } = await supabase.from('donors').insert([data]);
+      if (error) {
+        formMessage.textContent = 'Error: ' + error.message;
+        formMessage.className = 'error-message';
+        submitBtn.disabled = false;
+      } else {
+        formMessage.textContent = 'Thank you for registering as a donor!';
+        formMessage.className = 'success-message';
+        donorForm.reset();
+        submitBtn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

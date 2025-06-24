@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ConnectWithBlood - Guest Access</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <style>
+    /* ... your existing CSS ... */
+    body {
+      min-height: 100vh;
+      background: linear-gradient(120deg, #fff 60%, #ffcdd2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+    }
+    .guest-container {
+      background: #fff;
+      border-radius: 2rem;
+      box-shadow: 0 8px 40px #e5393530;
+      padding: 2.5rem 2rem 2rem 2rem;
+      width: 370px;
+      animation: fadeInDown 0.8s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-40px);}
+      to { opacity: 1; transform: translateY(0);}
+    }
+    .guest-logo {
+      width: 60px;
+      margin-bottom: 1rem;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1);}
+      50% { transform: scale(1.08);}
+    }
+    h2 {
+      color: #e53935;
+      margin-bottom: 1.1rem;
+      letter-spacing: 1px;
+    }
+    .guest-info {
+      color: #b71c1c;
+      font-size: 1.1rem;
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+    .guest-actions {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1rem;
+      width: 100%;
+      justify-content: center;
+    }
+    .guest-btn {
+      background: #e53935;
+      color: #fff;
+      border: none;
+      border-radius: 2rem;
+      padding: 0.9rem 2rem;
+      font-size: 1.1rem;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 2px 8px #e5393530;
+      transition: background 0.2s, transform 0.2s;
+    }
+    .guest-btn:hover {
+      background: #b71c1c;
+      transform: scale(1.04);
+    }
+    .guest-links {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      margin-top: 1.2rem;
+      font-size: 0.98rem;
+    }
+    .guest-links a {
+      color: #e53935;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .guest-links a:hover {
+      color: #b71c1c;
+      text-decoration: underline;
+    }
+    @media (max-width: 450px) {
+      .guest-container { width: 97vw; padding: 1.5rem 0.5rem;}
+    }
+  </style>
+</head>
+<body>
+  <div class="guest-container">
+    <img src="blood-drop-icon-design-template-free-png-removebg-preview.png" class="guest-logo" alt="Logo">
+    <h2>Guest Access</h2>
+    <div class="guest-info">
+      <p><i class="fas fa-eye"></i> You are browsing as a guest. Some features are limited.</p>
+      <p>To book appointments, donate, or request blood, please <a href="login.html" style="color:#e53935;text-decoration:underline;">Login</a> or <a href="signup.html" style="color:#e53935;text-decoration:underline;">Sign Up</a>.</p>
+    </div>
+    <div class="guest-actions">
+      <button class="guest-btn" onclick="window.location.href='home.html'"><i class="fas fa-home"></i> Home</button>
+      <button class="guest-btn" onclick="window.location.href='signup.html'"><i class="fas fa-user-plus"></i> Sign Up</button>
+    </div>
+    <div class="guest-links">
+      <a href="login.html">Login</a>
+      <a href="home.html">Back to Main</a>
+    </div>
+  </div>
+  <!-- Supabase JS SDK for session check -->
+  <script type="module">
+    import { supabase } from './supabaseClient.js';
+    // Redirect logged-in users away from guest page
+    (async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        // User is already logged in; redirect to dashboard or home
+        window.location.href = 'home.html';
+      }
+    })();
+  </script>
+</body>
+</html>

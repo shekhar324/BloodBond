@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BloodLink - Modern Dashboard</title>
+  <!-- Auth Guard: Redirect if not logged in -->
+  <script type="module">
+    import { supabase } from './supabaseClient.js';
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      window.location.href = 'login.html';
+    }
+  </script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <style>
+    :root {
+      --primary: #e53935;
+      --primary-dark: #c62828;
+      --secondary: #37474f;
+      --light: #f5f5f5;
+      --dark: #263238;
+      --accent: #b71c1c;
+      --bg: #fafbfc;
+      --card-bg: #fff;
+      --sidebar-width: 250px;
+      --header-height: 64px;
+      --radius: 16px;
+      --shadow: 0 4px 24px rgba(229,57,53,0.07);
+      --text: #222;
+    }
+    html, body {
+      margin: 0; padding: 0;
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    body { overflow-x: hidden; }
+    .dashboard2 {
+      display: flex;
+      min-height: 100vh;
+    }
+    .sidebar2 {
+      width: var(--sidebar-width);
+      background: var(--dark);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      padding-top: 1.5rem;
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      z-index: 100;
+      transition: transform 0.3s;
+      overflow-y: auto;
+      max-height: 100vh;
+    }
+    .sidebar2.collapsed { transform: translateX(-100%); }
+    .sidebar2 .logo {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+    .sidebar2 nav {
+      flex: 1;
+    }
+    .sidebar2 ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .sidebar2 li {
+      margin-bottom: 0.5rem;
+    }
+    .sidebar2 a {
+      display: flex;
+      align-items: center;
+      padding: 1rem 2rem;
+      color: #e0e0e0;
+      text-decoration: none;
+      border-left: 3px solid transparent;
+      transition: all 0.3s;
+      font-size: 1.08rem;
+    }
+    .sidebar2 a.active, .sidebar2 a:hover {
+      background: rgba(255,255,255,0.08);
+      color: #fff;
+      border-left: 3px solid var(--primary);
+    }
+    .sidebar2 a i {
+      margin-right: 1rem;
+      font-size: 1.2rem;
+      width: 24px;
+      text-align: center;
+    }
+    .sidebar2 .logout {
+      margin-top: 2rem;
+      color: #ffb3b3;
+      border-top: 1px solid #444;
+      padding-top: 1rem;
+    }
+    .main2 {
+      margin-left: var(--sidebar-width);
+      flex: 1;
+      min-width: 0;
+      padding: 2rem 1.5rem 2rem 1.5rem;
+      background: var(--bg);
+      min-height: 100vh;
+      transition: margin 0.3s;
+    }
+    .header2 {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      height: var(--header-height);
+      background: #fff;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+      padding: 0 2rem;
+      border-radius: 0 0 var(--radius) var(--radius);
+      margin-bottom: 2rem;
+    }
+    .menu-toggle2 {
+      display: none;
+      font-size: 2rem;
+      color: var(--primary);
+      cursor: pointer;
+      margin-right: 1.5rem;
+    }
+    .user-profile2 {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-left: auto;
+    }
+    .user-avatar2 {
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.3rem;
+    }
+    .user-name2 {
+      font-weight: 600;
+      color: var(--secondary);
+    }
+    .stats-grid2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2.5rem;
+    }
+    .stat-card2 {
+      background: #fff;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 1.2rem 1.2rem 1.2rem 1.2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.7rem;
+      min-width: 0;
+    }
+    .stat-label2 {
+      color: #888;
+      font-size: 1rem;
+    }
+    .stat-value2 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+    .stat-icon2 {
+      font-size: 2rem;
+      color: var(--primary);
+      margin-bottom: 0.2rem;
+    }
+    .charts-grid2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 2rem;
+      margin-bottom: 2.5rem;
+    }
+    .chart-card2 {
+      background: #fff;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 1.5rem;
+      min-width: 0;
+    }
+    .map-card2 {
+      background: #fff;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 1.5rem;
+      min-width: 0;
+      margin-bottom: 2rem;
+    }
+    #dashboardMap {
+      width: 100%;
+      height: 320px;
+      border-radius: 12px;
+      margin-top: 1rem;
+    }
+    @media (max-width: 900px) {
+      .main2 { padding: 1rem 0.5rem; }
+      .header2 {
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-start;
+        padding: 0 1rem;
+        height: 56px;
+        margin-bottom: 1rem;
+      }
+      .sidebar2 { width: 60vw; min-width: 180px; }
+      .main2 { margin-left: 0; }
+      .dashboard2 { flex-direction: column; }
+      .sidebar2 { position: fixed; z-index: 200; }
+      .menu-toggle2 { display: block; }
+      .user-profile2 {
+        margin-left: auto;
+        gap: 0.7rem;
+      }
+    }
+    @media (max-width: 600px) {
+      .stats-grid2, .charts-grid2 { grid-template-columns: 1fr; }
+      .main2 { padding: 0.5rem 0.2rem; }
+      .header2 {
+        flex-direction: row;
+        gap: 0.7rem;
+        height: auto;
+      }
+      .user-profile2 {
+        margin-left: auto;
+        gap: 0.5rem;
+      }
+      #dashboardMap { height: 220px; }
+    }
+    @media (min-width: 900px) {
+      .sidebar2 { transform: none !important; display: flex !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="dashboard2">
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebarMobile()"></div>
+    <aside class="sidebar2" id="sidebar2">
+      <div class="logo">🩸 BloodLink</div>
+      <nav>
+        <ul>
+          <li><a href="dashboard_v2.html"><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></a></li>
+          <li><a href="find-donor.html"><i class="fas fa-search"></i> <span>Find Donor/Receiver</span></a></li>
+          <li><a href="hospitals.html"><i class="fas fa-hospital"></i> <span>Hospitals</span></a></li>
+          <li><a href="blood-banks.html"><i class="fas fa-clinic-medical"></i> <span>Blood Banks</span></a></li>
+          <li><a href="blood-camps.html"><i class="fas fa-hand-holding-heart"></i> <span>Blood Camps</span></a></li>
+          <li><a href="inventory.html"><i class="fas fa-boxes"></i> <span>Inventory</span></a></li>
+          <li><a href="become-a-donor.html"><i class="fas fa-user-plus"></i> <span>Registration</span></a></li>
+          <li><a href="appointments.html"><i class="fas fa-calendar-check"></i> <span>Appointments</span></a></li>
+          <li><a href="history.html"><i class="fas fa-history"></i> <span>History</span></a></li>
+          <li><a href="reports.html"><i class="fas fa-chart-pie"></i> <span>Reports</span></a></li>
+          <li><a href="notifications.html"><i class="fas fa-bell"></i> <span>Notifications</span></a></li>
+          <li><a href="settings.html"><i class="fas fa-cog"></i> <span>Settings</span></a></li>
+          <li><a href="contact.html"><i class="fas fa-address-book"></i> <span>Contact Info</span></a></li>
+          <li>
+            <button id="logoutBtn" style="background:none;border:none;color:inherit;font:inherit;display:flex;align-items:center;width:100%;padding:1rem 2rem;cursor:pointer;">
+              <i class="fas fa-sign-out-alt"></i> <span>Logout</span>
+            </button>
+          </li>
+        </ul>
+      </nav>
+    </aside>
+    <main class="main2">
+      <div class="header2">
+        <span class="menu-toggle2" id="menuToggle2"><i class="fas fa-bars"></i></span>
+        <div style="flex:1;"></div>
+        <div class="user-profile2" style="margin-left:auto;">
+          <div class="user-avatar2" id="user-avatar" aria-label="User Avatar">U</div>
+          <div class="user-name2" id="user-name" aria-label="User Name">User</div>
+          <button id="darkModeBtn" aria-label="Toggle dark mode" style="background:none;border:none;cursor:pointer;font-size:1.5rem;margin-left:1.2rem;">
+            <span id="darkModeIcon">🌙</span>
+          </button>
+        </div>
+      </div>
+      <!-- Overview Section -->
+      <section class="page-section2 active" id="overview-section">
+        <h1 style="margin-bottom:1.5rem;">Dashboard Overview</h1>
+        <div class="stats-grid2" id="stats-grid">
+          <div class="stat-card2" id="statsLoading">Loading stats...</div>
+        </div>
+        <div class="charts-grid2">
+          <div class="chart-card2">
+            <h3>Blood Group Distribution</h3>
+            <div id="bloodGroupChartLoading">Loading chart...</div>
+            <canvas id="bloodGroupChart" height="180" style="display:none;"></canvas>
+          </div>
+          <div class="chart-card2">
+            <h3>Requests vs Donations</h3>
+            <div id="activityChartLoading">Loading chart...</div>
+            <canvas id="activityChart" height="180" style="display:none;"></canvas>
+          </div>
+          <div class="chart-card2">
+            <h3>Blood Availability by Group</h3>
+            <div id="bloodAvailChartLoading">Loading chart...</div>
+            <canvas id="bloodAvailBar2" height="180" style="display:none;"></canvas>
+          </div>
+        </div>
+        <div class="map-card2">
+          <h3>Nearby Hospitals, Banks & Camps</h3>
+          <div id="dashboardMap"></div>
+          <div id="mapNote" style="margin-top:0.7rem;color:#888;font-size:0.98rem;">(Dynamic map data coming soon!)</div>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script>
+    // Sidebar mobile toggle logic
+    const sidebar = document.getElementById('sidebar2');
+    const menuToggle = document.getElementById('menuToggle2');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    function openSidebarMobile() {
+      sidebar.classList.remove('collapsed');
+      sidebarOverlay.style.display = 'block';
+    }
+    function closeSidebarMobile() {
+      sidebar.classList.add('collapsed');
+      sidebarOverlay.style.display = 'none';
+    }
+    menuToggle.addEventListener('click', openSidebarMobile);
+    // Close sidebar when clicking a link (on mobile)
+    sidebar.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', closeSidebarMobile);
+    });
+    // Hide overlay by default
+    closeSidebarMobile();
+
+    // Dark mode toggle logic
+    const darkModeBtn = document.getElementById('darkModeBtn');
+    const darkModeIcon = document.getElementById('darkModeIcon');
+    function setDarkMode(enabled) {
+      if (enabled) {
+        document.body.classList.add('dark-mode');
+        darkModeIcon.textContent = '☀️';
+      } else {
+        document.body.classList.remove('dark-mode');
+        darkModeIcon.textContent = '🌙';
+      }
+      localStorage.setItem('darkMode', enabled ? '1' : '0');
+    }
+    // Load dark mode preference
+    setDarkMode(localStorage.getItem('darkMode') === '1');
+    darkModeBtn.addEventListener('click', () => {
+      setDarkMode(!document.body.classList.contains('dark-mode'));
+    });
+  </script>
+  <script type="module">
+    import { supabase } from './supabaseClient.js';
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      await supabase.auth.signOut();
+      window.location.href = 'home.html';
+    });
+  </script>
+  <style>
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.25);
+      z-index: 99;
+    }
+    @media (max-width: 900px) {
+      .dashboard2 {
+        flex-direction: column;
+      }
+      .sidebar2 {
+        transform: translateX(-100%);
+        left: 0;
+        width: 70vw;
+        min-width: 180px;
+        max-width: 320px;
+        position: fixed;
+        top: 0;
+        height: 100vh;
+        z-index: 200;
+        box-shadow: 2px 0 10px rgba(0,0,0,0.07);
+      }
+      .sidebar2:not(.collapsed) {
+        transform: translateX(0);
+      }
+      .sidebar-overlay {
+        display: block;
+      }
+      .main2 {
+        margin-left: 0;
+        padding: 1rem 0.5rem;
+      }
+      .header2 {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 1rem;
+        height: 56px;
+        background: #fff;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+        border-radius: 0 0 var(--radius) var(--radius);
+        margin-bottom: 1rem;
+      }
+      .menu-toggle2 {
+        display: block;
+        font-size: 2rem;
+        color: var(--primary);
+        cursor: pointer;
+        margin-right: 1.2rem;
+      }
+      .user-profile2 {
+        display: flex;
+        align-items: center;
+        gap: 0.7rem;
+      }
+    }
+    @media (max-width: 600px) {
+      .stats-grid2, .charts-grid2 { grid-template-columns: 1fr; }
+      .main2 { padding: 0.5rem 0.2rem; }
+      .header2 { flex-direction: row; gap: 0.7rem; height: auto; }
+      #dashboardMap { height: 220px; }
+      .stat-card2, .chart-card2, .map-card2 {
+        padding: 0.7rem;
+        font-size: 0.98rem;
+      }
+      .stat-value2 {
+        font-size: 1.3rem;
+      }
+      .stat-label2 {
+        font-size: 0.95rem;
+      }
+      .chart-card2 h3, .map-card2 h3 {
+        font-size: 1.1rem;
+      }
+    }
+    body.dark-mode {
+      background: #181a1b;
+      color: #f5f5f5;
+    }
+    body.dark-mode .header2,
+    body.dark-mode .main2,
+    body.dark-mode .sidebar2,
+    body.dark-mode .stat-card2,
+    body.dark-mode .chart-card2,
+    body.dark-mode .map-card2 {
+      background: #23272a !important;
+      color: #f5f5f5 !important;
+      box-shadow: none;
+    }
+    body.dark-mode .sidebar2 a,
+    body.dark-mode .sidebar2 .logout {
+      color: #eee;
+    }
+    body.dark-mode .sidebar2 a.active, body.dark-mode .sidebar2 a:hover {
+      background: rgba(255,255,255,0.08);
+      color: #fff;
+      border-left: 3px solid var(--primary);
+    }
+    body.dark-mode .user-avatar2 {
+      background: #444;
+      color: #fff;
+    }
+    body.dark-mode .stat-value2 {
+      color: #ffb3b3;
+    }
+    body.dark-mode .stat-label2 {
+      color: #bbb;
+    }
+    body.dark-mode .charts-grid2 h3,
+    body.dark-mode .map-card2 h3 {
+      color: #ffb3b3;
+    }
+  </style>
+</body>
+</html> 
