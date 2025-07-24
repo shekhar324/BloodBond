@@ -1,0 +1,221 @@
+/* Signup Page Modern UI - Ported from signup.html */
+.signupPage {
+  min-height: 100vh;
+  background: #ffcdd2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.signupContainer {
+  background: #fff;
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: 0 8px 24px rgba(229,57,53,0.1);
+  width: 100%;
+  max-width: 500px;
+  transition: transform 0.3s ease;
+  margin: 2rem 0;
+}
+.signupContainer:hover {
+  transform: translateY(-5px);
+}
+
+.signupHeader {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+.signupHeader h2 {
+  color: #e53935;
+  margin-bottom: 0.5rem;
+}
+.signupHeader p {
+  color: #666;
+}
+
+.formGroup {
+  margin-bottom: 1.5rem;
+}
+.formGroup label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #333;
+}
+.formControl {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  border: 1px solid #ced4da;
+  border-radius: 8px;
+  background-color: #f8f9fa;
+  transition: border-color 0.3s, box-shadow 0.3s;
+  color: #222;
+}
+.formControl:focus {
+  outline: none;
+  border-color: #e53935;
+  box-shadow: 0 0 0 3px rgba(229, 57, 53, 0.25);
+}
+.formControl::placeholder {
+  color: #b0b0b0;
+  opacity: 1;
+}
+.formControl:-ms-input-placeholder {
+  color: #b0b0b0;
+}
+.formControl::-ms-input-placeholder {
+  color: #b0b0b0;
+}
+.formControl option {
+  color: #666;
+}
+.formControl option[value=""] {
+  color: #b0b0b0;
+}
+
+.btn {
+  padding: 1rem 2rem;
+  border-radius: 30px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  border: none;
+}
+.btnPrimary {
+  background: #e53935;
+  color: #fff;
+}
+.btnPrimary:hover {
+  background: #b71c1c;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(183, 28, 28, 0.3);
+}
+.btnSecondary {
+  border: 2px solid #e53935;
+  color: #e53935;
+  background: transparent;
+}
+.btnSecondary:hover {
+  background: #fff5f5;
+}
+.divider {
+  display: flex;
+  align-items: center;
+  margin: 1.5rem 0;
+}
+.divider::before, .divider::after {
+  content: "";
+  flex: 1;
+  border-bottom: 1px solid #ddd;
+}
+.divider span {
+  padding: 0 1rem;
+  color: #666;
+}
+.socialLogin {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+.socialBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 45%;
+  font-size: 1rem;
+  border: none;
+}
+.googleBtn {
+  background: #fff;
+  color: #333;
+  border: 1px solid #ddd;
+}
+.googleBtn:hover {
+  background: #f1f1f1;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.facebookBtn {
+  background: #3b5998;
+  color: #fff;
+  border: none;
+}
+.facebookBtn:hover {
+  background: #4a69ad;
+  box-shadow: 0 2px 8px rgba(59, 89, 152, 0.3);
+}
+.signupOptions {
+  text-align: center;
+  margin-top: 1.5rem;
+}
+.signupOptions p {
+  color: #666;
+}
+.signupOptions a {
+  color: #e53935;
+  text-decoration: none;
+  font-weight: 600;
+}
+.signupOptions a:hover {
+  text-decoration: underline;
+}
+.formFooter {
+  margin-top: 2rem;
+  text-align: center;
+  font-size: 0.9rem;
+  color: #666;
+}
+.formFooter a {
+  color: #e53935;
+  text-decoration: none;
+}
+.formFooter a:hover {
+  text-decoration: underline;
+}
+.passwordStrength {
+  height: 5px;
+  margin-top: 0.5rem;
+  border-radius: 5px;
+  background: #eee;
+  overflow: hidden;
+}
+.passwordStrengthMeter {
+  height: 100%;
+  width: 0%;
+  transition: width 0.3s, background-color 0.3s;
+}
+.passwordStrengthText {
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+  color: #666;
+}
+.alert {
+  margin: 1rem 0;
+  text-align: center;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-size: 1rem;
+}
+.alertError {
+  background: #ffeaea;
+  color: #e53935;
+}
+.alertSuccess {
+  background: #e6f4ea;
+  color: #388e3c;
+}
+@media (max-width: 768px) {
+  .signupContainer {
+    padding: 1.5rem;
+  }
+} 
